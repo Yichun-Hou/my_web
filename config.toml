@@ -1,5 +1,5 @@
 # Site settings
-baseURL = "http://example.org/"
+#baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "Portfolio website for Yichun Hou"
 theme = "forty"

@@ -1,0 +1,217 @@
+---
+categories:
+- ""
+- ""
+date: "2020-09-16"
+description: Use of R in EDA
+draft: false
+image: pic07.jpg
+keywords: ""
+slug: blog5
+title: Use of R in EDA
+---
+> This is part of the course work showing the use of R in EDA
+
+```{r, setup}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(fivethirtyeight)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+```
+
+
+# Returns of financial stocks
+
+
+> You may find useful the material on [finance data sources](https://mam2021.netlify.app/reference/finance_data/). 
+
+We will use the `tidyquant` package to download historical data of stock prices, calculate returns, and examine the distribution of returns. 
+
+We must first identify which stocks we want to download data for
+
+```{r load_nyse_data, message=FALSE, warning=FALSE}
+nyse <- read_csv(here::here("data","nyse.csv"))
+
+#Sanity checks
+nyse%>%
+  arrange(desc(sector))
+#skim(nyse)
+```
+
+We now create create a table and a bar plot that shows the number of companies per sector (in descending order) based on the edited dataset.
+
+```{r companies_per_sector}
+#Creating new dataset based on sector
+sector<-nyse %>% 
+  group_by(sector) %>% 
+  summarise(count_companies = n()) %>% 
+  arrange(desc(count_companies))
+
+#Creating a plot showing the number of companies in each sector
+ggplot(sector,aes(x=reorder(sector,desc(count_companies)),y=count_companies,fill=sector))+
+  geom_col()+
+  labs(title="Number of Companies per Sector in NYSE in Descending Order",
+       x="Sector",
+       y="Company Count")+
+    theme(axis.text.x = element_text(angle = 30, vjust = 0.3, hjust=0.5))
+```
+
+Next, let's choose 6 stocks and their ticker symbols and download some data. 
+
+```{r get_price_data, message=FALSE, warning=FALSE, cache=TRUE}
+#down load data for six stocks
+myStocks <- c("AAPL","JPM","DIS","TSLA","XOM","SPY" ) %>%
+  tq_get(get  = "stock.prices",
+         from = "2011-01-01",
+         to   = "2020-08-31") %>%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame
+#skim(myStocks)
+```
+
+Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.
+
+
+```{r calculate_returns, message=FALSE, warning=FALSE, cache=TRUE}
+#calculate daily returns
+myStocks_returns_daily <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "daily", 
+               type       = "log",
+               col_rename = "daily_returns",
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "monthly", 
+               type       = "arithmetic",
+               col_rename = "monthly_returns",
+               cols = c(nested.col)) 
+#myStocks_returns_monthly
+
+#calculate yearly returns
+myStocks_returns_annual <- myStocks %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "yearly", 
+               type       = "arithmetic",
+               col_rename = "yearly_returns",
+               cols = c(nested.col))
+```
+
+The following code creates a table where you summarise monthly returns for each of the stocks and `SPY`; min, max, median, mean, SD.
+
+```{r summarise_monthly_returns}
+#summarise monthly returns
+summarise_monthly_returns<-myStocks_returns_monthly %>% 
+  group_by(symbol) %>% 
+  summarise(min_return=min(monthly_returns),max_return=max(monthly_returns),
+            median_return = median(monthly_returns), mean_return = mean(monthly_returns),sd_return=sd(monthly_returns))
+
+summarise_monthly_returns
+```
+
+
+Distribution plots, using `geom_density()`, for each of the stocks
+```{r density_monthly_returns}
+ggplot(myStocks_returns_monthly, aes(x= monthly_returns*100, fill =symbol))+
+  geom_density()+
+  facet_wrap(~symbol)+
+  labs(title='Density plot in %',
+       x='Monthly returns (in %)',
+       y='Density')
+```
+
+What can you infer from this plot? Which stock is the riskiest? The least risky?
+
+> 
+We can see that the monthly return of the stocks are widely spread. In cases like Tesla market timing can play a big role as the density plot is very wide, depending on your entry you can get very different returns. The sharper the peak the more certain your returns are. So the wider the density plot the riskier, thus the chance for higher returns and bigger losses. Looking at the density plot of the S&P 500 we can see the saying “time in the market beats timing the market” ringing true, as it has a very sharp peak at 1.1% monthly returns, it is possible to get higher returns but the probability is much slimmer.
+
+
+Finally, a plot that shows relationship between expected monthly return (mean) and risk (standard deviation). Using `ggrepel::geom_text_repel()` to label each stock instead of `geom_text()` helps avoid the labels sticking in the middle of the points.
+
+```{r risk_return_plot}
+ggplot(summarise_monthly_returns,aes(x=sd_return,y=mean_return,label=symbol))+
+  geom_point()+
+  ggrepel::geom_text_repel()+labs(title="Expected value of monthly return against risk (standard deviation)", x="Risk", y="Expected Monthly Return")
+```
+
+> 
+As we can see, with the density plot the average return and relative risk (here as a standard deviation from the density plot) is displayed in a scatter plot, the same conclusions can be drawn about risk vs return. But due to the collapse of Oil and Gas the risk of Exxon mobile has gone up and the returns have gone down. Similarly JPM offers similar returns to the S&P 500 but with much higher risk, the observant investor might ask “why am I incurring so much risk for the same returns? I may as well buy the market as a whole”
+
+
+
+#  2016 California Contributors plots
+
+We would be reproducing the plot that shows the top ten cities in highest amounts raised in political contributions in California during the 2016 US Presidential election.
+
+```{r, load_CA_data, warnings= FALSE, message=FALSE}
+# vroom() is significantly faster than read.csv()
+CA_contributors_2016 <- vroom::vroom(here::here("data","CA_contributors_2016.csv"))
+
+zip_code <- vroom::vroom(here::here("data","zip_code_database.csv"))
+
+library(tidytext)
+
+#merge two dataset for different regions
+CA_contributors_city <- merge(x=CA_contributors_2016,y=zip_code,by="zip",all.x=TRUE)
+
+#filter the vote for two candidates
+CA_final<-CA_contributors_city%>%
+  group_by(primary_city,cand_nm)%>%
+  filter(cand_nm=="Clinton, Hillary Rodham" | cand_nm=="Trump, Donald J.")%>%
+  summarise(sum_money=sum(contb_receipt_amt))
+
+my_breaks <- function(x) { if (max(x) < 1000000) seq(0, 400000, 200000) else seq(0, 12000000, 4000000) }
+my_labels <- function(x) { if (max(x)<1000000) c("$0","$200,000","$400,000") else c("$0","$4,000,000","$8,000,000","$12,000,000")}
+```
+
+```{r CA_final, fig.height=6, fig.width=11}
+#Filter top 10 candidates and generate the plot
+CA_final%>%
+  group_by(cand_nm)%>%
+  top_n(10)%>%
+  mutate(cand_nm = as.factor(cand_nm),
+           primary_city = reorder_within(primary_city, sum_money, cand_nm))%>%
+  ungroup%>%
+  ggplot(aes(primary_city,sum_money,fill=cand_nm))+
+  geom_col(show.legend=FALSE)+
+  facet_wrap(~cand_nm,scales="free",ncol=2)+
+  coord_flip()+
+  scale_x_reordered()+
+  scale_y_continuous(breaks = my_breaks,labels=my_labels)+
+  theme_bw()+
+  scale_fill_manual(values = c("#1073C6","#DB3743"))+
+  labs(title="Where did candidates raise the most money?",
+       x="",
+       y="Amount raised")
+```
+

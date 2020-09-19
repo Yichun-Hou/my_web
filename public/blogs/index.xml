@@ -12,6 +12,17 @@
     
     
     <item>
+      <title>Use of R in EDA</title>
+      <link>/blogs/blog5/</link>
+      <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blogs/blog5/</guid>
+      <description>This is part of the course work showing the use of R in EDA
+ knitr::opts_chunk$set( message = FALSE, warning = FALSE, tidy=FALSE, # display code as typed size=&amp;quot;small&amp;quot;) # slightly smaller font for code options(digits = 3) # default figure size knitr::opts_chunk$set( fig.width=6.75, fig.height=6.75, fig.align = &amp;quot;center&amp;quot; ) Returns of financial stocks  You may find useful the material on finance data sources.
+ We will use the tidyquant package to download historical data of stock prices, calculate returns, and examine the distribution of returns.</description>
+    </item>
+    
+    <item>
       <title>Aliquam</title>
       <link>/blogs/aliquam/</link>
       <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>

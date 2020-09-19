@@ -92,10 +92,10 @@ disqusShortname = ""
     # Display your showcases here.
     
     [[params.tiles.showcase]]
-      title = "Profile1"
-      subtitle = "HW1"
+      title = "Use of R in EDA"
+      subtitle = ""
       image = "pic01.jpg"
-      url = "blogs/aliquam"
+      url = "blogs/blog5"
 
     [[params.tiles.showcase]]
       title = "Profile2"

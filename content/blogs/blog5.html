@@ -1,0 +1,202 @@
+---
+categories:
+- ""
+- ""
+date: "2020-09-16"
+description: Use of R in EDA
+draft: false
+image: pic07.jpg
+keywords: ""
+slug: blog5
+title: Use of R in EDA
+---
+
+
+
+<blockquote>
+<p>This is part of the course work showing the use of R in EDA</p>
+</blockquote>
+<pre class="r"><code>knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size=&quot;small&quot;)   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = &quot;center&quot;
+)</code></pre>
+<div id="returns-of-financial-stocks" class="section level1">
+<h1>Returns of financial stocks</h1>
+<blockquote>
+<p>You may find useful the material on <a href="https://mam2021.netlify.app/reference/finance_data/">finance data sources</a>.</p>
+</blockquote>
+<p>We will use the <code>tidyquant</code> package to download historical data of stock prices, calculate returns, and examine the distribution of returns.</p>
+<p>We must first identify which stocks we want to download data for</p>
+<pre class="r"><code>nyse &lt;- read_csv(here::here(&quot;data&quot;,&quot;nyse.csv&quot;))
+
+#Sanity checks
+nyse%&gt;%
+  arrange(desc(sector))</code></pre>
+<pre><code>## # A tibble: 508 x 6
+##    symbol name           ipo_year sector    industry         summary_quote      
+##    &lt;chr&gt;  &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;            &lt;chr&gt;              
+##  1 CNI    Canadian Nati… n/a      Transpor… Railroads        https://www.nasdaq…
+##  2 CP     Canadian Paci… n/a      Transpor… Railroads        https://www.nasdaq…
+##  3 DAL    Delta Air Lin… n/a      Transpor… Air Freight/Del… https://www.nasdaq…
+##  4 FDX    FedEx Corpora… n/a      Transpor… Air Freight/Del… https://www.nasdaq…
+##  5 KSU    Kansas City S… n/a      Transpor… Railroads        https://www.nasdaq…
+##  6 NSC    Norfolk South… n/a      Transpor… Railroads        https://www.nasdaq…
+##  7 LUV    Southwest Air… n/a      Transpor… Air Freight/Del… https://www.nasdaq…
+##  8 UNP    Union Pacific… n/a      Transpor… Railroads        https://www.nasdaq…
+##  9 UPS    United Parcel… 1999     Transpor… Trucking Freigh… https://www.nasdaq…
+## 10 ZTO    ZTO Express (… 2016     Transpor… Trucking Freigh… https://www.nasdaq…
+## # … with 498 more rows</code></pre>
+<pre class="r"><code>#skim(nyse)</code></pre>
+<p>We now create create a table and a bar plot that shows the number of companies per sector (in descending order) based on the edited dataset.</p>
+<pre class="r"><code>#Creating new dataset based on sector
+sector&lt;-nyse %&gt;% 
+  group_by(sector) %&gt;% 
+  summarise(count_companies = n()) %&gt;% 
+  arrange(desc(count_companies))
+
+#Creating a plot showing the number of companies in each sector
+ggplot(sector,aes(x=reorder(sector,desc(count_companies)),y=count_companies,fill=sector))+
+  geom_col()+
+  labs(title=&quot;Number of Companies per Sector in NYSE in Descending Order&quot;,
+       x=&quot;Sector&quot;,
+       y=&quot;Company Count&quot;)+
+    theme(axis.text.x = element_text(angle = 30, vjust = 0.3, hjust=0.5))</code></pre>
+<p><img src="/blogs/blog5_files/figure-html/companies_per_sector-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>Next, let’s choose 6 stocks and their ticker symbols and download some data.</p>
+<pre class="r"><code>#down load data for six stocks
+myStocks &lt;- c(&quot;AAPL&quot;,&quot;JPM&quot;,&quot;DIS&quot;,&quot;TSLA&quot;,&quot;XOM&quot;,&quot;SPY&quot; ) %&gt;%
+  tq_get(get  = &quot;stock.prices&quot;,
+         from = &quot;2011-01-01&quot;,
+         to   = &quot;2020-08-31&quot;) %&gt;%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame</code></pre>
+<pre><code>## Rows: 14,586
+## Columns: 8
+## Groups: symbol [6]
+## $ symbol   &lt;chr&gt; &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AAPL&quot;, &quot;AA…
+## $ date     &lt;date&gt; 2011-01-03, 2011-01-04, 2011-01-05, 2011-01-06, 2011-01-07…
+## $ open     &lt;dbl&gt; 11.6, 11.9, 11.8, 12.0, 11.9, 12.1, 12.3, 12.3, 12.3, 12.4,…
+## $ high     &lt;dbl&gt; 11.8, 11.9, 11.9, 12.0, 12.0, 12.3, 12.3, 12.3, 12.4, 12.4,…
+## $ low      &lt;dbl&gt; 11.6, 11.7, 11.8, 11.9, 11.9, 12.0, 12.1, 12.2, 12.3, 12.3,…
+## $ close    &lt;dbl&gt; 11.8, 11.8, 11.9, 11.9, 12.0, 12.2, 12.2, 12.3, 12.3, 12.4,…
+## $ volume   &lt;dbl&gt; 4.45e+08, 3.09e+08, 2.56e+08, 3.00e+08, 3.12e+08, 4.49e+08,…
+## $ adjusted &lt;dbl&gt; 10.2, 10.2, 10.3, 10.3, 10.4, 10.6, 10.5, 10.6, 10.7, 10.8,…</code></pre>
+<pre class="r"><code>#skim(myStocks)</code></pre>
+<p>Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.</p>
+<pre class="r"><code>#calculate daily returns
+myStocks_returns_daily &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;daily&quot;, 
+               type       = &quot;log&quot;,
+               col_rename = &quot;daily_returns&quot;,
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;monthly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;monthly_returns&quot;,
+               cols = c(nested.col)) 
+#myStocks_returns_monthly
+
+#calculate yearly returns
+myStocks_returns_annual &lt;- myStocks %&gt;%
+  group_by(symbol) %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;yearly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;yearly_returns&quot;,
+               cols = c(nested.col))</code></pre>
+<p>The following code creates a table where you summarise monthly returns for each of the stocks and <code>SPY</code>; min, max, median, mean, SD.</p>
+<pre class="r"><code>#summarise monthly returns
+summarise_monthly_returns&lt;-myStocks_returns_monthly %&gt;% 
+  group_by(symbol) %&gt;% 
+  summarise(min_return=min(monthly_returns),max_return=max(monthly_returns),
+            median_return = median(monthly_returns), mean_return = mean(monthly_returns),sd_return=sd(monthly_returns))
+
+summarise_monthly_returns</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   symbol min_return max_return median_return mean_return sd_return
+##   &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+## 1 AAPL       -0.181      0.200      0.0257      0.0249      0.0782
+## 2 DIS        -0.179      0.234      0.0114      0.0142      0.0646
+## 3 JPM        -0.229      0.172      0.0210      0.0124      0.0719
+## 4 SPY        -0.125      0.127      0.0146      0.0112      0.0381
+## 5 TSLA       -0.224      0.811      0.0148      0.0513      0.171 
+## 6 XOM        -0.262      0.224      0.000105   -0.000410    0.0591</code></pre>
+<p>Distribution plots, using <code>geom_density()</code>, for each of the stocks</p>
+<pre class="r"><code>ggplot(myStocks_returns_monthly, aes(x= monthly_returns*100, fill =symbol))+
+  geom_density()+
+  facet_wrap(~symbol)+
+  labs(title=&#39;Density plot in %&#39;,
+       x=&#39;Monthly returns (in %)&#39;,
+       y=&#39;Density&#39;)</code></pre>
+<p><img src="/blogs/blog5_files/figure-html/density_monthly_returns-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>What can you infer from this plot? Which stock is the riskiest? The least risky?</p>
+<blockquote>
+<p>We can see that the monthly return of the stocks are widely spread. In cases like Tesla market timing can play a big role as the density plot is very wide, depending on your entry you can get very different returns. The sharper the peak the more certain your returns are. So the wider the density plot the riskier, thus the chance for higher returns and bigger losses. Looking at the density plot of the S&amp;P 500 we can see the saying “time in the market beats timing the market” ringing true, as it has a very sharp peak at 1.1% monthly returns, it is possible to get higher returns but the probability is much slimmer.</p>
+</blockquote>
+<p>Finally, a plot that shows relationship between expected monthly return (mean) and risk (standard deviation). Using <code>ggrepel::geom_text_repel()</code> to label each stock instead of <code>geom_text()</code> helps avoid the labels sticking in the middle of the points.</p>
+<pre class="r"><code>ggplot(summarise_monthly_returns,aes(x=sd_return,y=mean_return,label=symbol))+
+  geom_point()+
+  ggrepel::geom_text_repel()+labs(title=&quot;Expected value of monthly return against risk (standard deviation)&quot;, x=&quot;Risk&quot;, y=&quot;Expected Monthly Return&quot;)</code></pre>
+<p><img src="/blogs/blog5_files/figure-html/risk_return_plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<blockquote>
+<p>As we can see, with the density plot the average return and relative risk (here as a standard deviation from the density plot) is displayed in a scatter plot, the same conclusions can be drawn about risk vs return. But due to the collapse of Oil and Gas the risk of Exxon mobile has gone up and the returns have gone down. Similarly JPM offers similar returns to the S&amp;P 500 but with much higher risk, the observant investor might ask “why am I incurring so much risk for the same returns? I may as well buy the market as a whole”</p>
+</blockquote>
+</div>
+<div id="california-contributors-plots" class="section level1">
+<h1>2016 California Contributors plots</h1>
+<p>We would be reproducing the plot that shows the top ten cities in highest amounts raised in political contributions in California during the 2016 US Presidential election.</p>
+<pre class="r"><code># vroom() is significantly faster than read.csv()
+CA_contributors_2016 &lt;- vroom::vroom(here::here(&quot;data&quot;,&quot;CA_contributors_2016.csv&quot;))
+
+zip_code &lt;- vroom::vroom(here::here(&quot;data&quot;,&quot;zip_code_database.csv&quot;))
+
+library(tidytext)
+
+#merge two dataset for different regions
+CA_contributors_city &lt;- merge(x=CA_contributors_2016,y=zip_code,by=&quot;zip&quot;,all.x=TRUE)
+
+#filter the vote for two candidates
+CA_final&lt;-CA_contributors_city%&gt;%
+  group_by(primary_city,cand_nm)%&gt;%
+  filter(cand_nm==&quot;Clinton, Hillary Rodham&quot; | cand_nm==&quot;Trump, Donald J.&quot;)%&gt;%
+  summarise(sum_money=sum(contb_receipt_amt))
+
+my_breaks &lt;- function(x) { if (max(x) &lt; 1000000) seq(0, 400000, 200000) else seq(0, 12000000, 4000000) }
+my_labels &lt;- function(x) { if (max(x)&lt;1000000) c(&quot;$0&quot;,&quot;$200,000&quot;,&quot;$400,000&quot;) else c(&quot;$0&quot;,&quot;$4,000,000&quot;,&quot;$8,000,000&quot;,&quot;$12,000,000&quot;)}</code></pre>
+<pre class="r"><code>#Filter top 10 candidates and generate the plot
+CA_final%&gt;%
+  group_by(cand_nm)%&gt;%
+  top_n(10)%&gt;%
+  mutate(cand_nm = as.factor(cand_nm),
+           primary_city = reorder_within(primary_city, sum_money, cand_nm))%&gt;%
+  ungroup%&gt;%
+  ggplot(aes(primary_city,sum_money,fill=cand_nm))+
+  geom_col(show.legend=FALSE)+
+  facet_wrap(~cand_nm,scales=&quot;free&quot;,ncol=2)+
+  coord_flip()+
+  scale_x_reordered()+
+  scale_y_continuous(breaks = my_breaks,labels=my_labels)+
+  theme_bw()+
+  scale_fill_manual(values = c(&quot;#1073C6&quot;,&quot;#DB3743&quot;))+
+  labs(title=&quot;Where did candidates raise the most money?&quot;,
+       x=&quot;&quot;,
+       y=&quot;Amount raised&quot;)</code></pre>
+<p><img src="/blogs/blog5_files/figure-html/CA_final-1.png" width="1056" style="display: block; margin: auto;" /></p>
+</div>

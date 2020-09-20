@@ -1,0 +1,240 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="Great curiocity, Vigorous energy">
+	<meta name="author" content="Yichun Hou">
+	<meta name="generator" content="Hugo 0.74.3" />
+	<title>GDP components over time &middot; Portfolio website for Yichun Hou</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="/" class="logo"><strong>Yichun Hou</strong> <span>Saige</span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="/">Home</a></li>
+            
+                <li><a href="/blogs">Blogs</a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+                <li><a href="/blogs" class="button special fit">Get Started</a></li>
+            
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>GDP components over time</h1>
+                            </header>
+                            
+                                <span class="image main"><img src="/img/blogs/pic09.jpg" alt="" /></span>
+                            
+                            
+
+
+<pre class="r"><code>library(tidyverse)
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)</code></pre>
+<div id="gdp-components-over-time-and-among-countries" class="section level1">
+<h1>GDP components over time and among countries</h1>
+<p>At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). You can read more about GDP and the different approaches in calculating at the <a href="https://en.wikipedia.org/wiki/Gross_domestic_product">Wikipedia GDP page</a>.</p>
+<p>The GDP data we will look at is from the <a href="https://unstats.un.org/unsd/snaama/Downloads">United Nations’ National Accounts Main Aggregates Database</a>, which contains estimates of total GDP and its components for all countries from 1970 to today. We will look at how GDP and its components have changed over time, and compare different countries and how much each component contributes to that country’s GDP. The file we will work with is <a href="http://unstats.un.org/unsd/amaapi/api/file/6">GDP and its breakdown at constant 2010 prices in US Dollars</a> and it has already been saved in the Data directory. Have a look at the Excel file to see how it is structured and organised.</p>
+<pre class="r"><code>UN_GDP_data  &lt;-  read_excel(here::here(&quot;data&quot;, &quot;Download-GDPconstant-USD-countries.xls&quot;), # Excel filename
+                sheet=&quot;Download-GDPconstant-USD-countr&quot;, # Sheet name
+                skip=2) # Number of rows to skip</code></pre>
+<pre class="r"><code>tidy_GDP_data&lt;- UN_GDP_data %&gt;% 
+pivot_longer(cols = 4:51,
+   names_to = &quot;year&quot;,
+   values_to = &quot;gdp_in_billions&quot;,
+   values_drop_na = TRUE) %&gt;% 
+  mutate(gdp_in_billions=gdp_in_billions/1e9) 
+
+glimpse(tidy_GDP_data)</code></pre>
+<pre><code>## Rows: 161,459
+## Columns: 5
+## $ CountryID       &lt;dbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4…
+## $ Country         &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghan…
+## $ IndicatorName   &lt;chr&gt; &quot;Final consumption expenditure&quot;, &quot;Final consumption …
+## $ year            &lt;chr&gt; &quot;1970&quot;, &quot;1971&quot;, &quot;1972&quot;, &quot;1973&quot;, &quot;1974&quot;, &quot;1975&quot;, &quot;197…
+## $ gdp_in_billions &lt;dbl&gt; 5.56, 5.33, 5.20, 5.75, 6.15, 6.32, 6.37, 6.90, 7.09…</code></pre>
+<pre class="r"><code># Let us compare GDP components for these 3 countries
+country_list &lt;- tidy_GDP_data %&gt;% 
+  filter(Country==&quot;United States&quot;|
+           Country==&quot;Germany&quot;|
+           Country==&quot;India&quot;) %&gt;% 
+  filter(IndicatorName==&quot;Gross capital formation&quot;|
+           IndicatorName==&quot;Exports of goods and services&quot;|
+           IndicatorName==&quot;General government final consumption expenditure&quot;|
+           IndicatorName==&quot;Household consumption expenditure (including Non-profit institutions serving households)&quot;|
+           IndicatorName==&quot;Imports of goods and services&quot;)
+library(plyr)
+
+# Rename indicator names within column
+country_list_renamed&lt;-transform(country_list,
+          IndicatorName=revalue(IndicatorName,
+                                c(&quot;Household consumption expenditure (including Non-profit institutions serving households)&quot;=&quot;Household Expenditure&quot;))) %&gt;%
+  transform(country_list,
+          IndicatorName=revalue(IndicatorName,
+                                c(&quot;General government final consumption expenditure&quot;=&quot;Government expenditure&quot;))) %&gt;%
+  transform(country_list,
+          IndicatorName=revalue(IndicatorName,c(&quot;Imports of goods and services&quot;=&quot;Imports&quot;))) %&gt;%
+  transform(country_list,
+          IndicatorName=revalue(IndicatorName,c(&quot;Exports of goods and services&quot;=&quot;Exports&quot;))) %&gt;%
+  select(&quot;CountryID&quot;, &quot;Country&quot;,&quot;year&quot;, &quot;IndicatorName&quot;, &quot;gdp_in_billions&quot;)
+  
+# Plot data
+ggplot(country_list_renamed,aes(x=as.numeric(year),y=gdp_in_billions,color=IndicatorName))+
+  geom_line()+ 
+  facet_wrap(~Country)+
+  theme_bw()+
+  labs(title=&quot;GDP Components over time&quot;, 
+       subtitle = &quot;In constant 2010 USD&quot;,
+       x=&quot;&quot;,
+       y=&quot;Billion US$&quot;,
+       color=&quot;Components of GDP&quot;)</code></pre>
+<p><img src="/blogs/blog6_files/figure-html/reshape_GDP_data-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Create data frame where GDP components are given not in absolute terms but as % of GDP
+gdp_percentage&lt;-country_list_renamed %&gt;% 
+  pivot_wider(names_from = &quot;IndicatorName&quot;,
+              values_from=&quot;gdp_in_billions&quot;) %&gt;%  
+  group_by(year) %&gt;% 
+  mutate(GDP_calculated=`Household Expenditure`+
+           `Government expenditure`+
+           `Gross capital formation`+
+           Exports-
+           Imports,
+         `Household Expenditure`=`Household Expenditure`/GDP_calculated,
+         `Government Expenditure`=`Government expenditure`/GDP_calculated,
+         `Gross capital formation`=`Gross capital formation`/GDP_calculated,
+         `Net Exports`=(Exports-Imports)/GDP_calculated) %&gt;% 
+  select(CountryID,Country,year,`Government Expenditure`,`Gross capital formation`,`Household Expenditure`,`Net Exports`) %&gt;% 
+  pivot_longer(cols=4:7,
+               names_to=&quot;indicator&quot;,
+               values_to=&quot;gdp_in_percent&quot;) 
+
+# Plot the above data frame
+ggplot(gdp_percentage,aes(x=as.numeric(year),y=gdp_in_percent,color=indicator))+
+  geom_line()+ 
+  facet_wrap(~Country)+
+  theme_bw()+
+  scale_y_continuous(labels = scales::percent) +
+  labs(title=&quot;GDP and its breakdown at constant 2010 prices in US Dollars&quot;, 
+       x=&quot;&quot;,
+       y=&quot;Proportion&quot;, caption= &quot;Source:United Nations, https://unstats.un.org/unsd/snaama/Downloads&quot;)+
+  theme(legend.title=element_blank())</code></pre>
+<p><img src="/blogs/blog6_files/figure-html/reshape_GDP_data-2.png" width="1152" style="display: block; margin: auto;" /></p>
+<p>We reproduced the two charts given above the images.</p>
+<p>We can see from the chart above that whereas Germany and the United States have a relatively similar make-up of their GDP, India stands out in that the composition of the GDP has changed the most. Household expenditure as a % of GDP has decreased significantly in India; gross capital formation has instead taken up a greater proportion, showing that the government has invested domestically (in infrastructure/assets/PPE etc.) far more, in relative terms, since 2000.</p>
+<p>For Germany, we can see that net exports has increased as a % of GDP since 2000, which is likely attributable to increased exports within key industries (e.g. automobile, with expansions into global markets). It is also interesting that we can see dips in the plotted lines within the time frame of the Global Financial Crisis in 2007-2008.</p>
+<p>The United States is the only country within this set to have a consistent increase in household expenditure as a % of GDP, whereas government expenditure has been decreasing substantially relative to the other components. The final graph is especially interesting when compared to the GDP graph in absolute terms. Measured in billion dollars, the increase in household expenditure, i.e. consumption, appears massive, yet the final graph puts this into perspective by showing that the proporiton of this component increased by around 10%.</p>
+</div>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="https://twitter.com/saigeisardor" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
+                
+                    <li><a href="https://www.facebook.com/sagie.hou.33" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
+                
+                    <li><a href="https://www.instagram.com/saigehou/" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
+                
+                    <li><a href="https://github.com/Yichun-Hou" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com/in/yichun-hou-1468a5180/" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Company Name</li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>

@@ -1,0 +1,119 @@
+---
+categories:
+- ""
+- ""
+date: "2020-09-16"
+description: CDC COVID-19 Public Use Data
+draft: false
+image: pic08.jpg
+keywords: ""
+slug: blog7
+title: CDC COVID-19 Public Use Data
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+```{r load-libraries, include=FALSE}
+library(tidyverse)
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+library(httr)
+library(readxl)
+library(vroom)
+library(infer)
+```
+
+# CDC COVID-19 Public Use Data
+
+Let us revisit the [CDC Covid-19 Case Surveillance Data](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf). There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, I suggest you use `vroom` to load it and you keep `cache=TRUE` in the chunk options.
+
+
+```{r, cache=TRUE}
+# URL link to CDC to download data
+url <- "https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD"
+
+covid_data <- vroom(url)%>%
+  clean_names()
+```
+
+Given the data we have, I will produce two graphs that show death % rate:
+(Do we need to perform data cleansing on missing values? to be discussed)
+(Double faceting for both, use facet_grid, check R docu)
+
+1. by age group, sex, and whether the patient had co-morbidities or not
+```{r}
+
+#filter the data by age group, sex, and whether the patient had co-morbidities or not
+covid_data_deathrate1 <- covid_data %>% 
+  filter(!(death_yn %in%c("Missing","Unknown")),
+         !(medcond_yn %in%c("Missing","Unknown")),
+         !(is.na(age_group)), 
+         !(age_group %in%c("Missing","Unknown")),
+         !(is.na(sex)), 
+         !(sex %in%c("Missing","Unknown"))) %>% 
+
+#calculate death rate
+ group_by (age_group, sex, medcond_yn, death_yn) %>%
+  count(death_yn)  %>%
+  group_by (age_group, sex, medcond_yn) %>%
+  mutate(death_rate = n*100/sum(n)) %>% 
+  filter(death_yn=="Yes") %>% mutate(comorb = ifelse(medcond_yn=="No","Without Comorbidities","With Comorbidities"), death_rate = round(death_rate,1))
+
+#plot the death rate by age group, sex and presence of co-morbidities
+covid_data_deathrate1 %>%  
+  ggplot(aes(x= age_group, y = death_rate))+
+  geom_col(fill="#8b9dc3")+coord_flip()+facet_grid(col=vars(sex),row=vars(comorb))+
+  theme(axis.text.x = element_text(angle = 30)) +geom_text(aes(label=death_rate), position=position_dodge(width=0.9),hjust = -0.25)  + theme_bw()+
+    labs(title="Covid death % by age group, sex and presence of co-morbidities",
+       x="",y="", caption="Source:CDC")
+
+```
+
+1. by age group, sex, and whether the patient was admitted to Intensive Care Unit (ICU) or not.
+
+```{r, out.width="100%"}
+##filter the data by age group, sex, and whether the patient was admitted to Intensive Care Unit (ICU) or not
+covid_data_deathrate2 <- covid_data %>% 
+  filter(!(death_yn %in%c("Missing","Unknown")),
+         !(icu_yn %in%c("Missing","Unknown")),
+         !(is.na(age_group)), 
+         !(age_group %in%c("Missing","Unknown")),
+         !(is.na(sex)), 
+         !(sex %in%c("Missing","Unknown"))) %>% 
+
+#calculate death rate
+ group_by (age_group, sex, icu_yn, death_yn) %>%
+  count(death_yn)  %>%
+  group_by (age_group, sex, icu_yn) %>%
+  mutate(death_rate = n*100/sum(n)) %>% 
+  filter(death_yn=="Yes") %>% mutate(ICU = ifelse(icu_yn=="Yes","Admitted to ICU","No ICU"), death_rate = round(death_rate,1))
+
+#plot the death rate by age group, sex and whether patient was admitted to ICU
+covid_data_deathrate2 %>%  
+  ggplot(aes(x= age_group, y = death_rate))+
+  geom_col(fill="#ff9966")+coord_flip()+facet_grid(col=vars(sex),row=vars(ICU))+
+  theme(axis.text.x = element_text(angle = 30)) +geom_text(aes(label=death_rate), position=position_dodge(width=0.9),hjust = -0.25)+ ggtitle("Covid death % by age group, sex and whether patient was admitted to ICU")+ theme_bw()+
+  labs(title="Covid death % by age group, sex and whether patient was admitted to ICU",
+       x="",y="", caption="Source:CDC")
+
+
+```

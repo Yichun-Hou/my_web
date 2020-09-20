@@ -94,20 +94,20 @@ disqusShortname = ""
     [[params.tiles.showcase]]
       title = "Use of R in EDA"
       subtitle = ""
-      image = "pic01.jpg"
+      image = "finance.jpg"
       url = "blogs/blog5"
 
     [[params.tiles.showcase]]
-      title = "Profile2"
-      subtitle = "HW2"
-      image = "pic02.jpg"
-      url = "blogs/tempus"
+      title = "GDP components over time"
+      subtitle = ""
+      image = "gdp.jpg"
+      url = "blogs/blog6"
 
     [[params.tiles.showcase]]
-      title = "Profile3"
-      subtitle = "HW3"
-      image = "pic03.jpg"
-      url = "blogs/magna"
+      title = "CDC COVID-19 Public Use Data"
+      subtitle = ""
+      image = "covid.jpg"
+      url = "blogs/blog7"
 
     [[params.tiles.showcase]]
       title = "Profile4"
@@ -138,13 +138,11 @@ disqusShortname = ""
   # Section Type Two
   [params.two]
     enable = true
-    title = "Massa libero"
-    subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
-    Mauris aliquet magna magna sed nunc rhoncus pharetra. 
-    Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
-    Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
-    Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
-    buttonText = "Get Started"
+    title = "Something more interesting"
+    subtitle = """I like fun work and telling stories with data.
+    
+    Also a fan for music, sports, travelling and sweet cakes"""
+    buttonText = "Discover now"
     url = "blogs"
 
 

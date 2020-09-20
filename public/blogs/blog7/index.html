@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="Great curiocity, Vigorous energy">
+	<meta name="author" content="Yichun Hou">
+	<meta name="generator" content="Hugo 0.74.3" />
+	<title>CDC COVID-19 Public Use Data &middot; Portfolio website for Yichun Hou</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="/" class="logo"><strong>Yichun Hou</strong> <span>Saige</span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="/">Home</a></li>
+            
+                <li><a href="/blogs">Blogs</a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+                <li><a href="/blogs" class="button special fit">Get Started</a></li>
+            
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>CDC COVID-19 Public Use Data</h1>
+                            </header>
+                            
+                                <span class="image main"><img src="/img/blogs/pic08.jpg" alt="" /></span>
+                            
+                            
+
+
+<div id="cdc-covid-19-public-use-data" class="section level1">
+<h1>CDC COVID-19 Public Use Data</h1>
+<p>Let us revisit the <a href="https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf">CDC Covid-19 Case Surveillance Data</a>. There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, I suggest you use <code>vroom</code> to load it and you keep <code>cache=TRUE</code> in the chunk options.</p>
+<pre class="r"><code># URL link to CDC to download data
+url &lt;- &quot;https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD&quot;
+
+covid_data &lt;- vroom(url)%&gt;%
+  clean_names()</code></pre>
+<p>Given the data we have, I will produce two graphs that show death % rate:
+(Do we need to perform data cleansing on missing values? to be discussed)
+(Double faceting for both, use facet_grid, check R docu)</p>
+<ol style="list-style-type: decimal">
+<li>by age group, sex, and whether the patient had co-morbidities or not</li>
+</ol>
+<pre class="r"><code>#filter the data by age group, sex, and whether the patient had co-morbidities or not
+covid_data_deathrate1 &lt;- covid_data %&gt;% 
+  filter(!(death_yn %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(medcond_yn %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(is.na(age_group)), 
+         !(age_group %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(is.na(sex)), 
+         !(sex %in%c(&quot;Missing&quot;,&quot;Unknown&quot;))) %&gt;% 
+
+#calculate death rate
+ group_by (age_group, sex, medcond_yn, death_yn) %&gt;%
+  count(death_yn)  %&gt;%
+  group_by (age_group, sex, medcond_yn) %&gt;%
+  mutate(death_rate = n*100/sum(n)) %&gt;% 
+  filter(death_yn==&quot;Yes&quot;) %&gt;% mutate(comorb = ifelse(medcond_yn==&quot;No&quot;,&quot;Without Comorbidities&quot;,&quot;With Comorbidities&quot;), death_rate = round(death_rate,1))
+
+#plot the death rate by age group, sex and presence of co-morbidities
+covid_data_deathrate1 %&gt;%  
+  ggplot(aes(x= age_group, y = death_rate))+
+  geom_col(fill=&quot;#8b9dc3&quot;)+coord_flip()+facet_grid(col=vars(sex),row=vars(comorb))+
+  theme(axis.text.x = element_text(angle = 30)) +geom_text(aes(label=death_rate), position=position_dodge(width=0.9),hjust = -0.25)  + theme_bw()+
+    labs(title=&quot;Covid death % by age group, sex and presence of co-morbidities&quot;,
+       x=&quot;&quot;,y=&quot;&quot;, caption=&quot;Source:CDC&quot;)</code></pre>
+<p><img src="/blogs/blog7_files/figure-html/unnamed-chunk-2-1.png" width="648" style="display: block; margin: auto;" /></p>
+<ol style="list-style-type: decimal">
+<li>by age group, sex, and whether the patient was admitted to Intensive Care Unit (ICU) or not.</li>
+</ol>
+<pre class="r"><code>##filter the data by age group, sex, and whether the patient was admitted to Intensive Care Unit (ICU) or not
+covid_data_deathrate2 &lt;- covid_data %&gt;% 
+  filter(!(death_yn %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(icu_yn %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(is.na(age_group)), 
+         !(age_group %in%c(&quot;Missing&quot;,&quot;Unknown&quot;)),
+         !(is.na(sex)), 
+         !(sex %in%c(&quot;Missing&quot;,&quot;Unknown&quot;))) %&gt;% 
+
+#calculate death rate
+ group_by (age_group, sex, icu_yn, death_yn) %&gt;%
+  count(death_yn)  %&gt;%
+  group_by (age_group, sex, icu_yn) %&gt;%
+  mutate(death_rate = n*100/sum(n)) %&gt;% 
+  filter(death_yn==&quot;Yes&quot;) %&gt;% mutate(ICU = ifelse(icu_yn==&quot;Yes&quot;,&quot;Admitted to ICU&quot;,&quot;No ICU&quot;), death_rate = round(death_rate,1))
+
+#plot the death rate by age group, sex and whether patient was admitted to ICU
+covid_data_deathrate2 %&gt;%  
+  ggplot(aes(x= age_group, y = death_rate))+
+  geom_col(fill=&quot;#ff9966&quot;)+coord_flip()+facet_grid(col=vars(sex),row=vars(ICU))+
+  theme(axis.text.x = element_text(angle = 30)) +geom_text(aes(label=death_rate), position=position_dodge(width=0.9),hjust = -0.25)+ ggtitle(&quot;Covid death % by age group, sex and whether patient was admitted to ICU&quot;)+ theme_bw()+
+  labs(title=&quot;Covid death % by age group, sex and whether patient was admitted to ICU&quot;,
+       x=&quot;&quot;,y=&quot;&quot;, caption=&quot;Source:CDC&quot;)</code></pre>
+<p><img src="/blogs/blog7_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="https://twitter.com/saigeisardor" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
+                
+                    <li><a href="https://www.facebook.com/sagie.hou.33" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
+                
+                    <li><a href="https://www.instagram.com/saigehou/" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
+                
+                    <li><a href="https://github.com/Yichun-Hou" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com/in/yichun-hou-1468a5180/" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Company Name</li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>

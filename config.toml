@@ -92,10 +92,10 @@ disqusShortname = ""
     # Display your showcases here.
     
     [[params.tiles.showcase]]
-      title = "Use of R in EDA"
+      title = "Recommendation based on Rating Matrix"
       subtitle = ""
       image = "finance.jpg"
-      url = "blogs/blog5"
+      url = "blogs/recommend"
 
     [[params.tiles.showcase]]
       title = "GDP components over time"

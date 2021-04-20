@@ -1,6 +1,14 @@
 ---
-title: "Recommendation based on Rating Matrix"
-output: html_document
+categories:
+- ""
+- ""
+date: "2020-12-16"
+description: Recommendation based on Rating Matrix
+draft: false
+image: recommendation.jpg
+keywords: ""
+slug: recommendation
+title: Recommendation based on Rating Matrix
 ---
 
 
@@ -340,31 +348,26 @@ predicted_recommendations</code></pre>
 <pre class="r"><code>user1 &lt;- predicted_recommendations@items[[1]] # recommendation for the first user
 movies_user1 &lt;- predicted_recommendations@itemLabels[user1]
 movie_data$title[movie_data$movieId %in% movies_user1]</code></pre>
-<pre><code>##  [1] &quot;GoldenEye (1995)&quot;                                   
-##  [2] &quot;Ed Wood (1994)&quot;                                     
-##  [3] &quot;City Slickers II: The Legend of Curly&#39;s Gold (1994)&quot;
-##  [4] &quot;Dave (1993)&quot;                                        
-##  [5] &quot;Kingpin (1996)&quot;                                     
-##  [6] &quot;It&#39;s a Wonderful Life (1946)&quot;                       
-##  [7] &quot;E.T. the Extra-Terrestrial (1982)&quot;                  
-##  [8] &quot;Fifth Element, The (1997)&quot;                          
-##  [9] &quot;Godfather: Part III, The (1990)&quot;                    
-## [10] &quot;Bourne Ultimatum, The (2007)&quot;</code></pre>
+<pre><code>##  [1] &quot;Toy Story (1995)&quot;                   &quot;Father of the Bride Part II (1995)&quot;
+##  [3] &quot;Heat (1995)&quot;                        &quot;Leaving Las Vegas (1995)&quot;          
+##  [5] &quot;Babe (1995)&quot;                        &quot;Clueless (1995)&quot;                   
+##  [7] &quot;Mortal Kombat (1995)&quot;               &quot;Pocahontas (1995)&quot;                 
+##  [9] &quot;Batman Forever (1995)&quot;              &quot;Net, The (1995)&quot;</code></pre>
 <pre class="r"><code>recommendation_matrix &lt;- sapply(predicted_recommendations@items,
                                 function(x){ as.integer(colnames(movie_ratings)[x]) }) # matrix with the recommendations for each user
 #dim(recc_matrix)
 recommendation_matrix[,1:4]</code></pre>
-<pre><code>##        [,1] [,2] [,3] [,4]
-##  [1,]   785    6  349  266
-##  [2,] 54286   16  357  337
-##  [3,]  1527   70  377  551
-##  [4,]  2023  110  969 2529
-##  [5,]    10  165 1408 2797
-##  [6,]   235  231 1584 3175
-##  [7,]   432  318 1729 5218
-##  [8,]   440  784 1923 3033
-##  [9,]   953  786 2763  586
-## [10,]  1097  858 1201 2706</code></pre>
+<pre><code>##       [,1] [,2] [,3] [,4]
+##  [1,]    1    7  595    3
+##  [2,]    5   36 5418   34
+##  [3,]    6   70 1304  344
+##  [4,]   25  112 1201  509
+##  [5,]   34  141  953  553
+##  [6,]   39  151  969 1028
+##  [7,]   44  236 2294 1183
+##  [8,]   48  253 1954 1517
+##  [9,]  153  292  161 1608
+## [10,]  185  349 2005 2019</code></pre>
 <div id="model-evaluation" class="section level4">
 <h4>MODEL EVALUATION</h4>
 <pre class="r"><code>#Evaluation object for RMSE checking.

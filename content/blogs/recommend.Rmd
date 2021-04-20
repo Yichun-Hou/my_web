@@ -1,6 +1,15 @@
+
 ---
-title: "Recommendation based on Rating Matrix"
-output: html_document
+categories:
+- ""
+- ""
+date: "2020-12-16"
+description: Recommendation based on Rating Matrix
+draft: false
+image: recommendation.jpg
+keywords: ""
+slug: recommendation
+title: Recommendation based on Rating Matrix
 ---
 
 ```{r setup, include=FALSE}

@@ -74,5 +74,14 @@ The GDP data we will look at is from the United Nations’ National Accounts Mai
       <description>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</description>
     </item>
     
+    <item>
+      <title>Recommendation based on Rating Matrix</title>
+      <link>https://yichunhou.netlify.app/blogs/recommend/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://yichunhou.netlify.app/blogs/recommend/</guid>
+      <description>BEFORE WE START OUR ANALYSIS # Check to see if packages are installed. Install them if they are not, then load them into the R session. check.packages &amp;lt;- function(pkg){ new.pkg &amp;lt;- pkg[!(pkg %in% installed.packages()[, &amp;quot;Package&amp;quot;])] if (length(new.pkg)) install.packages(new.pkg, dependencies = TRUE) sapply(pkg, require, character.only = TRUE) } # Usage example packageList&amp;lt;-c(&amp;quot;ggplot2&amp;quot;, &amp;quot;data.table&amp;quot;, &amp;quot;reshape2&amp;quot;, &amp;quot;recommenderlab&amp;quot;, &amp;quot;recosystem&amp;quot;,&amp;quot;here&amp;quot;) check.packages(packageList) ## ggplot2 data.table reshape2 recommenderlab recosystem ## TRUE TRUE TRUE TRUE TRUE ## here ## TRUE rm(packageList, check.</description>
+    </item>
+    
   </channel>
 </rss>

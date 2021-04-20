@@ -94,7 +94,7 @@ disqusShortname = ""
     [[params.tiles.showcase]]
       title = "Recommendation based on Rating Matrix"
       subtitle = ""
-      image = "finance.jpg"
+      image = "recommendation.jpg"
       url = "blogs/recommend"
 
     [[params.tiles.showcase]]

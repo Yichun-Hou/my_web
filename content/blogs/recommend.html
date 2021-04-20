@@ -120,13 +120,13 @@ length(unique(rating_data$movieId))#number of rating</code></pre>
 ## 5                                      Comedy
 ## 6                       Action|Crime|Thriller</code></pre>
 <pre class="r"><code>summary(rating_data)   </code></pre>
-<pre><code>##      userId         movieId           rating     
-##  Min.   :  1.0   Min.   :     1   Min.   :0.500  
-##  1st Qu.:192.0   1st Qu.:  1073   1st Qu.:3.000  
-##  Median :383.0   Median :  2496   Median :3.500  
-##  Mean   :364.9   Mean   : 13380   Mean   :3.517  
-##  3rd Qu.:557.0   3rd Qu.:  5991   3rd Qu.:4.000  
-##  Max.   :668.0   Max.   :149532   Max.   :5.000</code></pre>
+<pre><code>##      userId       movieId           rating    
+##  Min.   :  1   Min.   :     1   Min.   :0.50  
+##  1st Qu.:192   1st Qu.:  1073   1st Qu.:3.00  
+##  Median :383   Median :  2496   Median :3.50  
+##  Mean   :365   Mean   : 13380   Mean   :3.52  
+##  3rd Qu.:557   3rd Qu.:  5991   3rd Qu.:4.00  
+##  Max.   :668   Max.   :149532   Max.   :5.00</code></pre>
 <pre class="r"><code>head(rating_data)</code></pre>
 <pre><code>##   userId movieId rating
 ## 1      2       1      5
@@ -194,13 +194,13 @@ names(recommendation_model)</code></pre>
                              which = &quot;users&quot;)
 #as.matrix(user_similarity)
 image(as.matrix(user_similarity), main = &quot;User&#39;s Similarities&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-7-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>movie_similarity &lt;- similarity(ratingMatrix[, 1:100],
                                method = &quot;cosine&quot;,
                                which = &quot;items&quot;)
 #as.matrix(movie_similarity)
 image(as.matrix(movie_similarity), main = &quot;Movies similarity&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-7-2.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>rating_values &lt;- as.vector(ratingMatrix@data)
 sort(unique(rating_values)) # extracting unique ratings</code></pre>
 <pre><code>##  [1] 0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0</code></pre>
@@ -240,9 +240,9 @@ head(table_views)</code></pre>
   geom_text(aes(label=views), vjust=-0.3, size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ggtitle(&quot;Total Views of the Top Films&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>image(ratingMatrix[1:25, 1:25], axes = FALSE, main = &quot;Heatmap of the first 25 rows and 25 columns&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-2.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#### We will now build some item and user based Collaborative Filtering methods. Remember, CF works better for users/items which are reasonably common. For rarer items we need to adopt a content based approach. ##
 movie_ratings &lt;- ratingMatrix[rowCounts(ratingMatrix) &gt; 50,
                               colCounts(ratingMatrix) &gt; 50] ## If we changed this number the performance of the final model is likely to change as well. For very small numbers the performance will go down. When sample if limited large numbers (instead of 50) will also decrease performance
@@ -254,12 +254,11 @@ minimum_users &lt;- quantile(colCounts(movie_ratings), 0.98)
 image(movie_ratings[rowCounts(movie_ratings) &gt; minimum_movies,
                     colCounts(movie_ratings) &gt; minimum_users],
       main = &quot;Heatmap of the top users and movies&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-3.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>average_ratings &lt;- rowMeans(movie_ratings)
 qplot(average_ratings, fill=I(&quot;steelblue&quot;), col=I(&quot;red&quot;)) +
   ggtitle(&quot;Distribution of the average rating per user&quot;)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-4.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-9-4.png" width="648" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="normalize-the-data" class="section level2">
@@ -270,7 +269,7 @@ sum(rowMeans(normalized_ratings) &gt; 0.00001)</code></pre>
 <pre class="r"><code>image(normalized_ratings[rowCounts(normalized_ratings) &gt; minimum_movies,
                          colCounts(normalized_ratings) &gt; minimum_users],
       main = &quot;Normalized Ratings of the Top Users&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-10-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>binary_minimum_movies &lt;- quantile(rowCounts(movie_ratings), 0.95)
 binary_minimum_users &lt;- quantile(colCounts(movie_ratings), 0.95)
 #movies_watched &lt;- binarize(movie_ratings, minRating = 1)
@@ -278,7 +277,7 @@ good_rated_films &lt;- binarize(movie_ratings, minRating = 3)
 image(good_rated_films[rowCounts(movie_ratings) &gt; binary_minimum_movies,
                        colCounts(movie_ratings) &gt; binary_minimum_users],
       main = &quot;Heatmap of the top users and movies&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-10-2.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>## Here we split our sample into train and test. We intend to train our model on 80% of the data. And, test the model on the remaining 20%
 sampled_data&lt;- sample(x = c(TRUE, FALSE),
                       size = nrow(movie_ratings),
@@ -314,7 +313,7 @@ recommendation_system$IBCF_realRatingMatrix$parameters</code></pre>
                               parameter = list(k = 30))
 recommen_model</code></pre>
 <pre><code>## Recommender of type &#39;IBCF&#39; for &#39;realRatingMatrix&#39; 
-## learned using 346 users.</code></pre>
+## learned using 338 users.</code></pre>
 <pre class="r"><code>class(recommen_model)</code></pre>
 <pre><code>## [1] &quot;Recommender&quot;
 ## attr(,&quot;package&quot;)
@@ -329,7 +328,7 @@ class(model_info$sim)</code></pre>
 <pre class="r"><code>top_items &lt;- 20
 image(model_info$sim[1:top_items, 1:top_items],
       main = &quot;Heatmap of the first rows and columns&quot;)</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-11-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>sum_rows &lt;- rowSums(model_info$sim &gt; 0)
 table(sum_rows) ## This is the number of items (movies) we are using. Most popular movies</code></pre>
 <pre><code>## sum_rows
@@ -337,42 +336,41 @@ table(sum_rows) ## This is the number of items (movies) we are using. Most popul
 ## 447</code></pre>
 <pre class="r"><code>sum_cols &lt;- colSums(model_info$sim &gt; 0)
 qplot(sum_cols, fill=I(&quot;steelblue&quot;), col=I(&quot;red&quot;))+ ggtitle(&quot;Distribution of the column count&quot;)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
+<p><img src="/blogs/recommend_files/figure-html/unnamed-chunk-11-2.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>top_recommendations &lt;- 10 # the number of items to recommend to each user
 predicted_recommendations &lt;- predict(object = recommen_model,
                                      newdata = testing_data,
                                      n = top_recommendations)
 predicted_recommendations</code></pre>
-<pre><code>## Recommendations as &#39;topNList&#39; with n = 10 for 74 users.</code></pre>
+<pre><code>## Recommendations as &#39;topNList&#39; with n = 10 for 82 users.</code></pre>
 <pre class="r"><code>user1 &lt;- predicted_recommendations@items[[1]] # recommendation for the first user
 movies_user1 &lt;- predicted_recommendations@itemLabels[user1]
 movie_data$title[movie_data$movieId %in% movies_user1]</code></pre>
-<pre><code>##  [1] &quot;Twelve Monkeys (a.k.a. 12 Monkeys) (1995)&quot;
-##  [2] &quot;Braveheart (1995)&quot;                        
-##  [3] &quot;Apollo 13 (1995)&quot;                         
-##  [4] &quot;Rob Roy (1995)&quot;                           
-##  [5] &quot;Legends of the Fall (1994)&quot;               
-##  [6] &quot;Pulp Fiction (1994)&quot;                      
-##  [7] &quot;Ace Ventura: Pet Detective (1994)&quot;        
-##  [8] &quot;Forrest Gump (1994)&quot;                      
-##  [9] &quot;Mask, The (1994)&quot;                         
-## [10] &quot;Naked Gun 33 1/3: The Final Insult (1994)&quot;</code></pre>
+<pre><code>##  [1] &quot;First Knight (1995)&quot;                   
+##  [2] &quot;Santa Clause, The (1994)&quot;              
+##  [3] &quot;Robin Hood: Men in Tights (1993)&quot;      
+##  [4] &quot;Snow White and the Seven Dwarfs (1937)&quot;
+##  [5] &quot;Beauty and the Beast (1991)&quot;           
+##  [6] &quot;Kingpin (1996)&quot;                        
+##  [7] &quot;Liar Liar (1997)&quot;                      
+##  [8] &quot;Boogie Nights (1997)&quot;                  
+##  [9] &quot;Lethal Weapon 2 (1989)&quot;                
+## [10] &quot;Lady and the Tramp (1955)&quot;</code></pre>
 <pre class="r"><code>recommendation_matrix &lt;- sapply(predicted_recommendations@items,
                                 function(x){ as.integer(colnames(movie_ratings)[x]) }) # matrix with the recommendations for each user
 #dim(recc_matrix)
 recommendation_matrix[,1:4]</code></pre>
 <pre><code>##       [,1] [,2] [,3] [,4]
-##  [1,]   32    7  141  293
-##  [2,]  110   44  158  595
-##  [3,]  150  253 4022  608
-##  [4,]  151  288  145  778
-##  [5,]  266  339 1407  783
-##  [6,]  296  432  595 1221
-##  [7,]  344  485 7143 2701
-##  [8,]  356  500 1722 3948
-##  [9,]  367 1208 6711 4370
-## [10,]  370 1219   25 7361</code></pre>
+##  [1,]  168   36    5    2
+##  [2,]  317   70  266    3
+##  [3,]  520  293 2000   11
+##  [4,]  594  349   44   16
+##  [5,]  595  357 2424   39
+##  [6,]  785  786  253   44
+##  [7,] 1485  913 2302   48
+##  [8,] 1673  924 1073   70
+##  [9,] 2001 1094 1722   95
+## [10,] 2080 1097 3448  104</code></pre>
 <div id="model-evaluation" class="section level4">
 <h4>MODEL EVALUATION</h4>
 <pre class="r"><code>#Evaluation object for RMSE checking.
@@ -386,32 +384,32 @@ recommen_model_UBCF &lt;- Recommender(movie_ratings, method = &quot;UBCF&quot;,
 #Making predictions 
 prediction &lt;- predict(recommen_model_UBCF, movie_ratings[1:25, ], type=&quot;ratings&quot;)
 as(prediction, &quot;matrix&quot;)[,1:5]</code></pre>
-<pre><code>##              1        2        3        5        6
-##  [1,] 3.772295       NA 3.080899 4.775162 4.579112
-##  [2,] 3.397549 3.436098 1.917853       NA       NA
-##  [3,] 4.686794 3.880241 4.006191 3.885865 4.484018
-##  [4,]       NA       NA 2.191453 3.302372 2.912816
-##  [5,] 4.517967 4.081313 4.082782 3.943974 4.552465
-##  [6,] 3.719118 3.165033 4.706658 3.365612 2.337144
-##  [7,]       NA       NA       NA       NA 5.090968
-##  [8,] 2.581016       NA       NA       NA       NA
-##  [9,]       NA 3.423408 3.703536 4.223839 4.413373
-## [10,] 4.570596 4.522768 5.071013 4.045527 5.232534
-## [11,] 3.590315       NA       NA       NA 5.220000
-## [12,]       NA 4.769693 4.220873 3.905289 4.771818
-## [13,] 3.173523 2.249074 3.476688 3.441693 3.352688
-## [14,] 2.380104 1.730083 1.706504 1.400191 2.211650
-## [15,] 4.306414 2.227104       NA 2.455396 4.136188
-## [16,] 4.002483 3.590741 3.867755 4.415145 4.461572
-## [17,] 4.068018       NA       NA       NA 3.770996
-## [18,] 3.494576 3.769110 3.064900 3.356964 3.795219
-## [19,] 3.697270 4.134540 3.449304 4.087874 4.108824
-## [20,] 2.710817 2.512111       NA       NA       NA
-## [21,]       NA       NA 4.166388 4.166388 2.815304
-## [22,]       NA       NA       NA       NA       NA
-## [23,]       NA 3.617463 3.937983 3.780382 4.009205
-## [24,]       NA       NA       NA 5.253775 5.253775
-## [25,] 4.545540 4.358243 3.681915 4.571974 4.220305</code></pre>
+<pre><code>##          1    2    3    5    6
+##  [1,] 3.77   NA 3.08 4.78 4.58
+##  [2,] 3.40 3.44 1.92   NA   NA
+##  [3,] 4.69 3.88 4.01 3.89 4.48
+##  [4,]   NA   NA 2.19 3.30 2.91
+##  [5,] 4.52 4.08 4.08 3.94 4.55
+##  [6,] 3.72 3.17 4.71 3.37 2.34
+##  [7,]   NA   NA   NA   NA 5.09
+##  [8,] 2.58   NA   NA   NA   NA
+##  [9,]   NA 3.42 3.70 4.22 4.41
+## [10,] 4.57 4.52 5.07 4.05 5.23
+## [11,] 3.59   NA   NA   NA 5.22
+## [12,]   NA 4.77 4.22 3.91 4.77
+## [13,] 3.17 2.25 3.48 3.44 3.35
+## [14,] 2.38 1.73 1.71 1.40 2.21
+## [15,] 4.31 2.23   NA 2.46 4.14
+## [16,] 4.00 3.59 3.87 4.42 4.46
+## [17,] 4.07   NA   NA   NA 3.77
+## [18,] 3.49 3.77 3.06 3.36 3.80
+## [19,] 3.70 4.13 3.45 4.09 4.11
+## [20,] 2.71 2.51   NA   NA   NA
+## [21,]   NA   NA 4.17 4.17 2.82
+## [22,]   NA   NA   NA   NA   NA
+## [23,]   NA 3.62 3.94 3.78 4.01
+## [24,]   NA   NA   NA 5.25 5.25
+## [25,] 4.55 4.36 3.68 4.57 4.22</code></pre>
 <pre class="r"><code>#Estimating RMSE
 set.seed(1)
 
@@ -422,8 +420,8 @@ prediction &lt;- predict(RMSE.model, getData(e, &quot;known&quot;), type=&quot;r
 
 rmse_ubcf &lt;- calcPredictionAccuracy(prediction, getData(e, &quot;unknown&quot;))[1]
 rmse_ubcf</code></pre>
-<pre><code>##     RMSE 
-## 1.140435</code></pre>
+<pre><code>## RMSE 
+## 1.14</code></pre>
 </div>
 <div id="item-item-collaborative-filtering" class="section level4">
 <h4>Item-item collaborative Filtering</h4>
@@ -434,32 +432,32 @@ recommen_model_IBCF &lt;- Recommender(movie_ratings, method = &quot;IBCF&quot;,
 #Making predictions 
 prediction &lt;- predict(recommen_model_IBCF, movie_ratings[1:25], type=&quot;ratings&quot;)
 as(prediction, &quot;matrix&quot;)[,1:5]</code></pre>
-<pre><code>##              1        2        3        5        6
-##  [1,] 3.891566 4.016402 3.946786 3.941624 3.947071
-##  [2,] 3.679678 3.836774 3.750061       NA 3.697623
-##  [3,] 4.263095 4.141012 4.323933 4.474084 4.050297
-##  [4,]       NA 2.931238 3.205806 2.665667 2.500227
-##  [5,] 4.237408 4.431312 4.247868 4.177395 4.405956
-##  [6,] 3.591371 3.692991 3.531759 3.565188 3.677345
-##  [7,]       NA 3.847889       NA       NA 3.694481
-##  [8,] 2.699164 2.806883       NA 2.786177       NA
-##  [9,]       NA 3.450849 3.550314 3.516093 3.487830
-## [10,] 4.767118 4.750037 4.811525 4.900802 4.739524
-## [11,] 4.111392       NA 4.015386 3.966780 4.085669
-## [12,]       NA 4.178399 4.076067 4.094185 4.116294
-## [13,] 3.296609 3.455215 3.421897 3.484852 3.398137
-## [14,] 1.492356 2.097582 2.008032 1.948653 2.752766
-## [15,] 3.994764 3.985414 4.022962 4.029703 4.002297
-## [16,] 4.157248 4.034694 4.010245 4.169066 4.055973
-## [17,] 3.032784 2.967299       NA       NA 3.041646
-## [18,] 3.683875 3.692587 3.748930 3.712383 3.668098
-## [19,] 3.833884 3.880412 4.084998 4.052044 3.975985
-## [20,] 2.937712 2.972976       NA 3.136972 3.032984
-## [21,]       NA 3.534069 3.578658 3.636883 3.530336
-## [22,]       NA       NA 3.312962 3.339007       NA
-## [23,]       NA 4.082458 4.135865 4.085201 4.125636
-## [24,]       NA       NA       NA 4.307138 4.270753
-## [25,] 4.147716 4.471445 4.507296 4.570630 4.369926</code></pre>
+<pre><code>##          1    2    3    5    6
+##  [1,] 3.89 4.02 3.95 3.94 3.95
+##  [2,] 3.68 3.84 3.75   NA 3.70
+##  [3,] 4.26 4.14 4.32 4.47 4.05
+##  [4,]   NA 2.93 3.21 2.67 2.50
+##  [5,] 4.24 4.43 4.25 4.18 4.41
+##  [6,] 3.59 3.69 3.53 3.57 3.68
+##  [7,]   NA 3.85   NA   NA 3.69
+##  [8,] 2.70 2.81   NA 2.79   NA
+##  [9,]   NA 3.45 3.55 3.52 3.49
+## [10,] 4.77 4.75 4.81 4.90 4.74
+## [11,] 4.11   NA 4.02 3.97 4.09
+## [12,]   NA 4.18 4.08 4.09 4.12
+## [13,] 3.30 3.46 3.42 3.48 3.40
+## [14,] 1.49 2.10 2.01 1.95 2.75
+## [15,] 3.99 3.99 4.02 4.03 4.00
+## [16,] 4.16 4.03 4.01 4.17 4.06
+## [17,] 3.03 2.97   NA   NA 3.04
+## [18,] 3.68 3.69 3.75 3.71 3.67
+## [19,] 3.83 3.88 4.08 4.05 3.98
+## [20,] 2.94 2.97   NA 3.14 3.03
+## [21,]   NA 3.53 3.58 3.64 3.53
+## [22,]   NA   NA 3.31 3.34   NA
+## [23,]   NA 4.08 4.14 4.09 4.13
+## [24,]   NA   NA   NA 4.31 4.27
+## [25,] 4.15 4.47 4.51 4.57 4.37</code></pre>
 <pre class="r"><code>#Estimating RMSE
 set.seed(1)
 
@@ -470,8 +468,8 @@ prediction &lt;- predict(RMSE.model, getData(e, &quot;known&quot;), type=&quot;r
 
 rmse_ubcf &lt;- calcPredictionAccuracy(prediction, getData(e, &quot;unknown&quot;))[1]
 rmse_ubcf</code></pre>
-<pre><code>##      RMSE 
-## 0.9624979</code></pre>
+<pre><code>##  RMSE 
+## 0.962</code></pre>
 <pre class="r"><code>## Example
 
 movie_ratings[410,]</code></pre>

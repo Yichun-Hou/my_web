@@ -2,41 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Lifestyle on Portfolio website for Yichun Hou</title>
-    <link>/blogs/</link>
+    <link>https://yichunhou.netlify.app/blogs/</link>
     <description>Recent content in Lifestyle on Portfolio website for Yichun Hou</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Oct 2017 22:27:21 -0500</lastBuildDate>
-    
-	<atom:link href="/blogs/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 31 Oct 2017 22:27:21 -0500</lastBuildDate><atom:link href="https://yichunhou.netlify.app/blogs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>CDC COVID-19 Public Use Data</title>
-      <link>/blogs/blog7/</link>
+      <link>https://yichunhou.netlify.app/blogs/blog7/</link>
       <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>/blogs/blog7/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/blog7/</guid>
       <description>CDC COVID-19 Public Use Data Let us revisit the CDC Covid-19 Case Surveillance Data. There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, I suggest you use vroom to load it and you keep cache=TRUE in the chunk options.
 # URL link to CDC to download data url &amp;lt;- &amp;quot;https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD&amp;quot; covid_data &amp;lt;- vroom(url)%&amp;gt;% clean_names() Given the data we have, I will produce two graphs that show death % rate: (Do we need to perform data cleansing on missing values?</description>
     </item>
     
     <item>
       <title>GDP components over time</title>
-      <link>/blogs/blog6/</link>
+      <link>https://yichunhou.netlify.app/blogs/blog6/</link>
       <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>/blogs/blog6/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/blog6/</guid>
       <description>library(tidyverse) library(mosaic) library(ggthemes) library(GGally) library(readxl) library(here) library(skimr) library(janitor) library(broom) library(tidyquant) library(infer) GDP components over time and among countries At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). You can read more about GDP and the different approaches in calculating at the Wikipedia GDP page.
 The GDP data we will look at is from the United Nations’ National Accounts Main Aggregates Database, which contains estimates of total GDP and its components for all countries from 1970 to today.</description>
     </item>
     
     <item>
       <title>Use of R in EDA</title>
-      <link>/blogs/blog5/</link>
+      <link>https://yichunhou.netlify.app/blogs/blog5/</link>
       <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>/blogs/blog5/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/blog5/</guid>
       <description>This is part of the course work showing the use of R in EDA
  knitr::opts_chunk$set( message = FALSE, warning = FALSE, tidy=FALSE, # display code as typed size=&amp;quot;small&amp;quot;) # slightly smaller font for code options(digits = 3) # default figure size knitr::opts_chunk$set( fig.width=6.75, fig.height=6.75, fig.align = &amp;quot;center&amp;quot; ) Returns of financial stocks  You may find useful the material on finance data sources.
  We will use the tidyquant package to download historical data of stock prices, calculate returns, and examine the distribution of returns.</description>
@@ -44,37 +40,37 @@ The GDP data we will look at is from the United Nations’ National Accounts Mai
     
     <item>
       <title>Aliquam</title>
-      <link>/blogs/aliquam/</link>
+      <link>https://yichunhou.netlify.app/blogs/aliquam/</link>
       <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
       
-      <guid>/blogs/aliquam/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/aliquam/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Tempus</title>
-      <link>/blogs/tempus/</link>
+      <link>https://yichunhou.netlify.app/blogs/tempus/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
       
-      <guid>/blogs/tempus/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/tempus/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Magna</title>
-      <link>/blogs/magna/</link>
+      <link>https://yichunhou.netlify.app/blogs/magna/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
-      <guid>/blogs/magna/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/magna/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Ipsum</title>
-      <link>/blogs/ipsum/</link>
+      <link>https://yichunhou.netlify.app/blogs/ipsum/</link>
       <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
       
-      <guid>/blogs/ipsum/</guid>
+      <guid>https://yichunhou.netlify.app/blogs/ipsum/</guid>
       <description>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</description>
     </item>
     
